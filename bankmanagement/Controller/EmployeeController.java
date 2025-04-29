@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class EmployeeController {
     private final EmployeeService employeeService;
 
-    @PostMapping("/add")
-    public ResponseEntity<String> addEmployee(@AuthenticationPrincipal User user, @RequestBody @Valid EmployeeDTO employeeDTO) {
-        employeeService.addEmployee(user.getId(),employeeDTO);
+    @PostMapping("/register")
+    public ResponseEntity<String> registerEmployee( @RequestBody @Valid EmployeeDTO employeeDTO) {
+        employeeService.registerEmployee(employeeDTO);
         return ResponseEntity.status(201).body("Employee added successfully");
     }
 

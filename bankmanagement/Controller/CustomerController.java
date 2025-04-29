@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController {
     private final CustomerService customerService;
 
-    @PostMapping("/add")
-    public ResponseEntity<String> addCustomer(@AuthenticationPrincipal User user, @RequestBody @Valid CustomerDTO customerDTO) {
-        customerService.addCustomer(user.getId(), customerDTO);
+    @PostMapping("/register")
+    public ResponseEntity<String> registerCustomer(@RequestBody @Valid CustomerDTO customerDTO) {
+        customerService.registerCustomer( customerDTO);
         return ResponseEntity.status(201).body("Customer added successfully");
     }
 

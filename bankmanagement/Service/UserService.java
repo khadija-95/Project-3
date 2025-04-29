@@ -20,6 +20,9 @@ public class UserService {
         }
         return userRepository.findAll();
     }
+    public User findByUsername(String username) {
+        return userRepository.findUserByUsername(username);
+    }
 
     public void deleteUser(Integer userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new ApiException("User not found"));

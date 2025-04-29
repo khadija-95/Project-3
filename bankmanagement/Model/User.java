@@ -42,5 +42,13 @@ public class User {
     @NotNull
     @Pattern(regexp = "(CUSTOMER|EMPLOYEE|ADMIN)")
     private String role;
+
+    @OneToOne(cascade = CascadeType.ALL,mappedBy = "user")
+    @PrimaryKeyJoinColumn
+    private Customer customer;
+
+    @OneToOne(cascade = CascadeType.ALL,mappedBy = "user")
+    @PrimaryKeyJoinColumn
+    private Employee employee;
 }
 

@@ -7,6 +7,7 @@ import com.example.bankmanagement.Model.User;
 import com.example.bankmanagement.Repository.EmployeeRepository;
 import com.example.bankmanagement.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,15 +19,17 @@ public class EmployeeService {
     private final EmployeeRepository employeeRepository;
     private final UserRepository userRepository;
 
-    public void addEmployee(Integer userId ,EmployeeDTO employeeDTO) {
-        User user = userRepository.findUserById(userId);
-        if (user==null){
-            throw new ApiException("User not found");
-        }
+    public void registerEmployee(EmployeeDTO employeeDTO) {
+        User user = new User();
+        user.setName(employeeDTO.getName());
+        user.setUsername(employeeDTO.getUsername());
+        user.setEmail(employeeDTO.getEmail());
+        user.setRole("EMPLOYEE");
 
-        if (!user.getRole().equals("EMPLOYEE")) {
-            throw new ApiException("User not assigned as EMPLOYEE");
-        }
+        String hashPassword = new BCryptPasswordEncoder().encode(employeeDTO.getPassword());
+        user.setPassword(hashPassword);
+
+        userRepository.save(user);
 
         Employee employee = new Employee();
                 employee.setPosition(employeeDTO.getPosition());
@@ -38,7 +41,7 @@ public class EmployeeService {
     }
 
     public List<Employee> getAllEmployees(Integer userId) {
-        return employeeRepository.findAll();
+        return employeeRepository.findAllByUser_Id(userId);
     }
 
     public Employee getEmployeeById(Integer employeeId) {
@@ -55,6 +58,9 @@ public class EmployeeService {
         if (employee==null){
             throw new ApiException("Employee not found");
         }
+        if (employee.getUser().getId()!=userId){
+            throw new ApiException("Unauthorized");
+        }
 
         employee.setPosition(employeeDTO.getPosition());
         employee.setSalary(employeeDTO.getSalary());
@@ -66,6 +72,9 @@ public class EmployeeService {
         Employee employee = employeeRepository.findEmployeeById(employeeId);
         if (employee==null){
             throw new ApiException("Employee not found");
+        }
+        if (employee.getUser().getId()!=userId){
+            throw new ApiException("Unauthorized");
         }
 
         employeeRepository.delete(employee);

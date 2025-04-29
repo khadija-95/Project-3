@@ -48,6 +48,10 @@ public class AccountService {
     public void deposit(Integer userId, String accountNumber, Double amount) {
         Account account = accountRepository.findAByAccountNumber(accountNumber);
         if (account == null) throw new ApiException("Account not found");
+
+        if (account.getCustomer().getUser().getId()!= userId){
+            throw new ApiException("Unauthorized");
+        }
         account.setBalance(account.getBalance() + amount);
         accountRepository.save(account);
     }
@@ -55,6 +59,9 @@ public class AccountService {
     public void withdraw(Integer userId, String accountNumber, Double amount) {
         Account account = accountRepository.findAByAccountNumber(accountNumber);
         if (account == null) throw new ApiException("Account not found");
+        if (account.getCustomer().getUser().getId()!= userId){
+            throw new ApiException("Unauthorized");
+        }
         if (account.getBalance() < amount) throw new ApiException("Insufficient balance");
         account.setBalance(account.getBalance() - amount);
         accountRepository.save(account);
@@ -65,6 +72,9 @@ public class AccountService {
         Account toAccount = accountRepository.findAByAccountNumber(toAccountNumber);
 
         if (fromAccount == null || toAccount == null) throw new ApiException("Account not found");
+        if (fromAccount.getCustomer().getUser().getId()!= userId){
+            throw new ApiException("Unauthorized");
+        }
         if (fromAccount.getBalance() < amount) throw new ApiException("Insufficient balance");
 
         fromAccount.setBalance(fromAccount.getBalance() - amount);
@@ -76,6 +86,9 @@ public class AccountService {
 
     public void blockAccount(Integer userId, Integer accountId) {
         Account account = accountRepository.findById(accountId).orElseThrow(() -> new ApiException("Account not found"));
+        if (account.getCustomer().getUser().getId()!= userId){
+            throw new ApiException("Unauthorized");
+        }
         account.setIsActive(false);
         accountRepository.save(account);
     }

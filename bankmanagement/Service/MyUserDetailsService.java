@@ -2,7 +2,7 @@ package com.example.bankmanagement.Service;
 
 import com.example.bankmanagement.Api.ApiException;
 import com.example.bankmanagement.Model.User;
-import com.example.bankmanagement.Repository.AuthRepository;
+import com.example.bankmanagement.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,11 +17,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MyUserDetailsService implements UserDetailsService {
 
-    private final AuthRepository authRepository;
+    private final UserRepository userRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = authRepository.findUserByUsername(username);
+        User user = userRepository.findUserByUsername(username);
         if (user ==null){
             throw new ApiException("wrong username or password");
         }

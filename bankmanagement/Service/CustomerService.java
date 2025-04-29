@@ -7,6 +7,7 @@ import com.example.bankmanagement.Model.User;
 import com.example.bankmanagement.Repository.CustomerRepository;
 import com.example.bankmanagement.Repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,15 +18,18 @@ public class CustomerService {
     private final CustomerRepository customerRepository;
     private final UserRepository userRepository;
 
-    public void addCustomer( Integer userId,CustomerDTO customerDTO) {
-        User user = userRepository.findUserById(userId);
-        if (user==null){
-            throw new ApiException("User not found");
-        }
+    public void registerCustomer(CustomerDTO customerDTO) {
+        User user = new User();
+        user.setName(customerDTO.getName());
+        user.setUsername(customerDTO.getUsername());
+        user.setEmail(customerDTO.getEmail());
+        user.setRole("CUSTOMER");
 
-        if (!user.getRole().equals("CUSTOMER")) {
-            throw new ApiException("User is not assigned as CUSTOMER");
-        }
+        String hashPassword = new BCryptPasswordEncoder().encode(customerDTO.getPassword());
+        user.setPassword(hashPassword);
+
+        userRepository.save(user);
+
 
         Customer customer = new Customer();
                 customer.setPhoneNumber(customerDTO.getPhoneNumber());
@@ -35,7 +39,7 @@ public class CustomerService {
     }
 
     public List<Customer> getAllCustomers(Integer userId) {
-        return customerRepository.findAll();
+        return customerRepository.findAllByUser_Id(userId);
     }
 
     public Customer getCustomerById(Integer customerId) {
@@ -51,6 +55,9 @@ public class CustomerService {
         if (customer==null){
             throw new ApiException("Customer not found");
         }
+        if (customer.getUser().getId()!=userId){
+            throw new ApiException("Unauthorized");
+        }
 
         customer.setPhoneNumber(customerDTO.getPhoneNumber());
         customerRepository.save(customer);
@@ -60,6 +67,9 @@ public class CustomerService {
         Customer customer = customerRepository.findCustomerById(customerId);
         if (customer==null){
             throw new ApiException("Customer not found");
+        }
+        if (customer.getUser().getId()!=userId){
+            throw new ApiException("Unauthorized");
         }
 
         customerRepository.delete(customer);
